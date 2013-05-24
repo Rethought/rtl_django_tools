@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = "rtl_django_tools",
-    version = "0.0.1",
+    version = "0.0.2",
     author = "ReThought Ltd",
     author_email = "code@rethought-solutions.com",
     url = "https://github.com/rethought/rtl_django_tools.git",
