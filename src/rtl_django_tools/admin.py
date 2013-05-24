@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
+
 from rtl_django_tools.models import User
 from rtl_django_tools.forms import BasicUserChangeForm
 from rtl_django_tools.forms import BasicUserCreationForm

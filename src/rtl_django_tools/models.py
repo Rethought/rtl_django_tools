@@ -17,12 +17,9 @@ work with this.
 The abstract class means we can easily create other user models from this
 one.
 """
-import warnings
 from django.contrib.auth.models import (AbstractBaseUser,
                                         BaseUserManager,
-                                        PermissionsMixin,
-                                        SiteProfileNotAvailable)
-from django.core.exceptions import ImproperlyConfigured
+                                        PermissionsMixin)
 from django.core.mail import send_mail
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
@@ -58,18 +55,19 @@ class BasicUserManager(BaseUserManager):
         return u
 
 
-@python_2_unicode_compatible
-class AbstractBasicUser(AbstractBaseUser, PermissionsMixin):
+class BasicUserMixin(models.Model):
     """
-    An abstract base class implementing a fully featured User model with
+    A mixin class implementing a fully featured User model with
     admin-compliant permissions but WITHOUT a username field.
 
     Email and password are required. Other fields are optional. Email is the
     USERNAME_FIELD.
-
     The contents are largely copied from Django's AbstractUser with the
     removal of `username`. This makes it easier to create applications that
     make exclusive use of the email address as the primary user identifier.
+
+    Much of this is copied directly from the Django User model and is not
+    original work.
     """
     email = models.EmailField(('email address'),
                               blank=True, unique=True, max_length=254)
@@ -88,11 +86,8 @@ class AbstractBasicUser(AbstractBaseUser, PermissionsMixin):
     objects = BasicUserManager()
 
     USERNAME_FIELD = 'email'
-#    REQUIRED_FIELDS not defined because email and password already mandatory
 
     class Meta:
-        verbose_name = _('user')
-        verbose_name_plural = _('users')
         abstract = True
 
     def get_absolute_url(self):
@@ -121,49 +116,21 @@ class AbstractBasicUser(AbstractBaseUser, PermissionsMixin):
         """
         send_mail(subject, message, from_email, [self.email])
 
-    def get_profile(self):
-        """
-        Returns site-specific profile for this user. Raises
-        SiteProfileNotAvailable if this site does not allow profiles.
-        """
-        warnings.warn("The use of AUTH_PROFILE_MODULE to define user profiles "
-                      "has been deprecated.",
-                      PendingDeprecationWarning)
-        if not hasattr(self, '_profile_cache'):
-            from django.conf import settings
-            if not getattr(settings, 'AUTH_PROFILE_MODULE', False):
-                raise SiteProfileNotAvailable(
-                    'You need to set AUTH_PROFILE_MODULE in your project '
-                    'settings')
-            try:
-                app_label, model_name = settings.AUTH_PROFILE_MODULE.split('.')
-            except ValueError:
-                raise SiteProfileNotAvailable(
-                    'app_label and model_name should be separated by a dot in '
-                    'the AUTH_PROFILE_MODULE setting')
-            try:
-                model = models.get_model(app_label, model_name)
-                if model is None:
-                    raise SiteProfileNotAvailable(
-                        'Unable to load the profile model, check '
-                        'AUTH_PROFILE_MODULE in your project settings')
-                self._profile_cache = \
-                    model._default_manager.using(self._state.db).get(
-                        user__id__exact=self.id)
-                self._profile_cache.user = self
-            except (ImportError, ImproperlyConfigured):
-                raise SiteProfileNotAvailable
-        return self._profile_cache
+
+class AbstractBasicUser(AbstractBaseUser, PermissionsMixin, BasicUserMixin):
+    """
+    An abstract class bringing together the BasicUserMixin and PermissionsMixin
+    """
+    class Meta:
+        abstract = True
 
 
+@python_2_unicode_compatible
 class User(AbstractBasicUser):
     """
-    Users within the Django authentication system are represented by this
-    model.
-
-    Email and password are required. Other fields are optional.
-
-    A straight copy with change of base class of Django's User model.
+    Concrete implementation of the AbstractBasicUser
     """
     class Meta:
         swappable = 'AUTH_USER_MODEL'
+        verbose_name = _('user')
+        verbose_name_plural = _('users')
