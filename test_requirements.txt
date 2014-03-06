@@ -1,0 +1,16 @@
+# Test tools
+django==1.5.1
+django-nose==1.1     # integrate nose as test runner for django tests
+django-test-extensions==0.14
+factory-boy==1.2.0   # generate test objects using factories
+mock                 # create mocks for unit testing
+
+# Analysis/checker tools
+
+coverage==3.5.2      # generate code coverage reports
+nosexcover           # nose plugin to integrate coverage
+pep8                 # style checking
+
+# Documentation tools
+
+sphinx               # compile HTML documentation out of code and RST files

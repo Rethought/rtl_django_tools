@@ -1,0 +1,11 @@
+*.pyc
+.idea
+.*.swp
+build
+dist
+*egg-info*
+**htmlcov
+pep8.txt
+.coverage
+coverage.xml
+nosetests.xml
