@@ -55,6 +55,7 @@ class BasicUserManager(BaseUserManager):
         return u
 
 
+@python_2_unicode_compatible
 class BasicUserMixin(models.Model):
     """
     A mixin class implementing a fully featured User model with
@@ -125,7 +126,6 @@ class AbstractBasicUser(AbstractBaseUser, PermissionsMixin, BasicUserMixin):
         abstract = True
 
 
-@python_2_unicode_compatible
 class User(AbstractBasicUser):
     """
     Concrete implementation of the AbstractBasicUser
